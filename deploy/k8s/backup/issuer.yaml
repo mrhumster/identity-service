@@ -1,0 +1,28 @@
+apiVersion: v1
+items:
+- apiVersion: cert-manager.io/v1
+  kind: Issuer
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"cert-manager.io/v1","kind":"Issuer","metadata":{"annotations":{},"name":"ca-issuer","namespace":"go-app"},"spec":{"ca":{"secretName":"ca-secret"}}}
+    creationTimestamp: "2025-11-14T06:39:02Z"
+    generation: 1
+    name: ca-issuer
+    namespace: go-app
+    resourceVersion: "10632"
+    uid: 200c25fb-1eee-463b-b9da-dae5449386a3
+  spec:
+    ca:
+      secretName: ca-secret
+  status:
+    conditions:
+    - lastTransitionTime: "2025-11-14T06:47:48Z"
+      message: Signing CA verified
+      observedGeneration: 1
+      reason: KeyPairVerified
+      status: "True"
+      type: Ready
+kind: List
+metadata:
+  resourceVersion: ""

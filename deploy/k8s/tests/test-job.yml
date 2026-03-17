@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: app-tests
+spec:
+  template:
+    spec:
+      containers:
+        - name: test-runner
+          image: xomrkob/identity-service:1.1.29
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Running tests..."
+              go test ./handler/... -v
+              TEST_EXIT_CODE=$?
+              if [ $TEST_EXIT_CODE -eq 0 ]; then
+                echo "✅ All tests passed!"
+                exit 0
+              else
+                echo "❌ Tests failed!"
+                exit 1
+              fi
+          env:
+            - name: TEST_DB_HOST
+              value: "postgresql.go-app.svc.cluster.local"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: DB_USER
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+            - name: TEST_DB_NAME
+              value: "test_database1"
+      restartPolicy: Never
+  backoffLimit: 1

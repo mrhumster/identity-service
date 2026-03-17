@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ingress-certificate
+  namespace: go-app
+spec:
+  secretTemplate:
+    annotations:
+      cert-manager.io/certificate-key: "tls.crt"
+  secretName: ingress-certificate
+  issuerRef:
+    name: ca-issuer
+    kind: Issuer
+  commonName: go-app.example.com
+  dnsNames:
+    - example.com
+  duration: 2160h
+  renewBefore: 360h

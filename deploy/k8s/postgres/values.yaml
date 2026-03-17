@@ -1,0 +1,16 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "Master1234"
+      database: "database1"
+
+primary:
+  persistence:
+    enabled: true
+    storageClass: "hostpath"
+    size: 8Gi
+  postgresql:
+    max_connections: 100
+    shared_buffers: "256MB"
+    effective_cache_size: "3GB"
+    work_mem: "50MB"

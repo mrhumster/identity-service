@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package permission;
+
+/*
+ * Эта строка указывает protobuf компилятору:
+ * ✅ Куда генерировать код: В директорию, соответствующую этому пути
+ * ✅ Имя Go-пакета: permission (последняя часть пути)
+ * ✅ Полный импорт-путь: github.com/mrhumster/identity-service/proto/gen/go/permission
+ */
+option go_package = "github.com/mrhumster/identity-service/proto/gen/go/permission";
+
+service PermissionService {
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+  rpc AddPolicy(AddPolicyRequest) returns (AddPolicyResponse);
+  rpc RemovePolicy(RemovePolicyRequest) returns (RemovePolicyResponse);
+  rpc AddPolicyIfNotExists(AddPolicyIfNotExistsRequest) returns (AddPolicyIfNotExistsResponse);
+}
+
+message CheckPermissionRequest {
+  string user_id = 1;
+  string resource = 2;
+  string action = 3;
+}
+
+message CheckPermissionResponse {
+  bool allowed = 1;
+  string error = 2;
+}
+
+message AddPolicyRequest {
+  string policy = 1;
+  string resorce = 2;
+  string permission = 3;
+}
+
+message AddPolicyResponse {
+  bool added = 1;
+  string error = 2;
+}
+
+message RemovePolicyRequest {
+  string policy = 1;
+  string resource = 2;
+  string permission = 3;
+}
+
+message RemovePolicyResponse {
+  bool removed = 1;
+  string error = 2;
+}
+
+message AddPolicyIfNotExistsRequest {
+  string policy = 1;
+  string resource = 2;
+  string permission = 3;
+}
+
+message AddPolicyIfNotExistsResponse {
+  bool exists = 1;
+  string error = 2;
+}

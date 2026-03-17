@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: identity-service
+  namespace: go-app
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/http2-listener: "true"
+    cert-manager.io/issuer: "ca-issuer"
+spec:
+  tls:
+    - hosts:
+        - api.example.com
+      secretName: auth-tls
+  ingressClassName: nginx
+  rules:
+    - host: api.example.com
+      http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: identity-service-service
+                port:
+                  number: 80

@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-service
+  namespace: go-app
+  labels:
+    app: identity-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity-service
+  template:
+    metadata:
+      labels:
+        app: identity-service
+    spec:
+      containers:
+        - name: identity-service
+          image: xomrkob/identity-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 50051
+          env:
+            - name: SERVER_ADDR
+              value: ":8080"
+            - name: DOMAIN
+              value: "example.com"
+            - name: DB_HOST
+              value: postgresql
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "database1"
+            - name: CASBIN_MODEL
+              value: "/app/config/model.conf"
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: DB_PASS
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: DB_USER
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: JWT_SECRET
+            - name: JWT_ACCESS_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: ACCESS_PRIVATE_KEY
+            - name: JWT_ACCESS_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: ACCESS_PUBLIC_KEY
+            - name: JWT_REFRESH_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: REFRESH_PRIVATE_KEY
+            - name: JWT_REFRESH_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: go-app-secret
+                  key: REFRESH_PUBLIC_KEY
+            - name: JWT_REFRESH_TOKEN_EXPIRY
+              value: "168h"
+            - name: JWT_ACCESS_TOKEN_EXPIRY
+              value: "60m"
+            - name: AUTH_SERVICE_ADDRESS
+              value: identity-service-service:50051
+            - name: REDIS_ADDR
+              value: casbin-redis-master:6379
+            - name: REDIS_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: casbin-redis
+                  key: redis-password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /auth/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /auth/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
