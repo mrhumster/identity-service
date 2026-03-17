@@ -75,7 +75,7 @@ spec:
             - name: JWT_ACCESS_TOKEN_EXPIRY
               value: "60m"
             - name: AUTH_SERVICE_ADDRESS
-              value: identity-service-service:50051
+              value: identity-service:50051
             - name: REDIS_ADDR
               value: casbin-redis-master:6379
             - name: REDIS_PASS

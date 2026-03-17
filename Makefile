@@ -34,7 +34,7 @@ logs:
 	kubectl -n $(NAMESPACE) logs -f -l app=identity-service
 
 deploy-postgres:
-	helm -n go-app install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql -f ~/projects/identity-service/deploy/k8s/base/values.yaml
+	helm -n go-app install postgresql oci://registry-1.docker.io/bitnamicharts/postgresql -f ./deploy/k8s/postgres/values.yaml
 
 deploy-redis:
 	helm install casbin-redis oci://registry-1.docker.io/bitnamicharts/redis --namespace go-app --set architecture=standalone --set auth.enabled=true --set auth.password=password --set master.persistence.enabled=false
@@ -59,4 +59,4 @@ deploy-ingress-nginx:
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
 	@echo "Wait for ready..."
 	kubectl wait --for=condition=Available deployment/ingress-nginx-controller -n ingress-nginx --timeout=120s
-	@echo"Ingress controller install success"
+	@echo "Ingress controller install success"
