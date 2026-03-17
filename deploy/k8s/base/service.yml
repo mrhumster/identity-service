@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: identity-service-service
+  name: identity-service
   namespace: go-app
 spec:
   selector:
