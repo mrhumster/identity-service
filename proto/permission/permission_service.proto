@@ -2,12 +2,6 @@ syntax = "proto3";
 
 package permission;
 
-/*
- * Эта строка указывает protobuf компилятору:
- * ✅ Куда генерировать код: В директорию, соответствующую этому пути
- * ✅ Имя Go-пакета: permission (последняя часть пути)
- * ✅ Полный импорт-путь: github.com/mrhumster/identity-service/proto/gen/go/permission
- */
 option go_package = "github.com/mrhumster/identity-service/proto/gen/go/permission";
 
 service PermissionService {
