@@ -40,7 +40,23 @@ deploy-redis:
 	helm install casbin-redis oci://registry-1.docker.io/bitnamicharts/redis --namespace go-app --set architecture=standalone --set auth.enabled=true --set auth.password=password --set master.persistence.enabled=false
 
 deploy-certmanager:
+	@echo "Apply cert-manager manifest"
 	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.4/cert-manager.yaml
+	@echo "Wait for cert-manager controller..."
+	kubectl wait --for=condition=Available deployment/cert-manager -n cert-manager --timeout=120s	
+	@echo "Wait for cert-manager injection"
+	kubectl wait --for=condition=Available deployment/cert-manager-cainjector -n cert-manager --timeout=120s
+	@echo "Wait for cert-manager webhook"
+	kubectl wait --for=condition=Available deployment/cert-manager-webhook -n cert-manager --timeout=120s
+	@echo "Create Issuer secret"
+	kubectl apply -f ./deploy/k8s/cert-manger/ca-secret.yaml
+	@echo "Create Issuer"
+	kubectl apply -f ./deploy/k8s/cert-manger/issuer.yaml
+	@echo "Cert-manager install Success"
 
 deploy-ingress-nginx:
+	@echo "Apply ingress manifest"
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+	@echo "Wait for ready..."
+	kubectl wait --for=condition=Available deployment/ingress-nginx-controller -n ingress-nginx --timeout=120s
+	@echo"Ingress controller install success"
