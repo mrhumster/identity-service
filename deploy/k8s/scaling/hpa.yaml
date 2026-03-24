@@ -1,7 +1,7 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: test-hpa
+  name: identity-hpa
   namespace: go-app
   labels:
     app: identity-service
