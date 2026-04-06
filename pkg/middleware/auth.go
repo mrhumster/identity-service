@@ -91,9 +91,6 @@ func OptionalAuthMiddleware(TokenService TokenServiceIFace) gin.HandlerFunc {
 
 func extractToken(r *http.Request) string {
 	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		return ""
-	}
 	parts := strings.Split(authHeader, " ")
 	if len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") {
 		return parts[1]
