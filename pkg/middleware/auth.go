@@ -95,8 +95,8 @@ func extractToken(r *http.Request) string {
 		return ""
 	}
 	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		return ""
+	if len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") {
+		return parts[1]
 	}
-	return parts[1]
+	return r.URL.Query().Get("token")
 }
