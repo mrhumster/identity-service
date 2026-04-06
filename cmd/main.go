@@ -33,7 +33,7 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
 
 	slog.SetDefault(logger)
-	slog.Info("🚀 Start identity-service", "version", "1.2.14")
+	slog.Info("🚀 Start identity-service", "version", "0.1.2")
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
