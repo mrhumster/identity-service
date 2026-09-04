@@ -35,6 +35,15 @@ func main() {
 	slog.SetDefault(logger)
 	slog.Info("🚀 Start identity-service", "version", "0.1.3")
 
+	// Debug ENV
+	for _, k := range []string{
+		"JWT_ACCESS_PRIVATE_KEY", "JWT_ACCESS_PUBLIC_KEY",
+		"JWT_REFRESH_PRIVATE_KEY", "JWT_REFRESH_PUBLIC_KEY",
+	} {
+		v := os.Getenv(k)
+		slog.Info("env check", "key", k, "len", len(v), "first20", v[:min(20, len(v))])
+	}
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		panic(fmt.Sprintf("❌ Config: %s", err.Error()))
