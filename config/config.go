@@ -94,6 +94,18 @@ func LoadConfig() (*Config, error) {
 			Password: getEnv("REDIS_PASS", ""),
 		},
 	}
+	if cfg.JWT.AccessPrivateKey == "" {
+		return nil, fmt.Errorf("Config error: JWT_ACCESS_PRIVATE_KEY is not set")
+	}
+	if cfg.JWT.AccessPublicKey == "" {
+		return nil, fmt.Errorf("Config error: JWT_ACCESS_PUBLIC_KEY is not set")
+	}
+	if cfg.JWT.RefreshPrivateKey == "" {
+		return nil, fmt.Errorf("Config error: JWT_REFRESH_PRIVATE_KEY is not set")
+	}
+	if cfg.JWT.RefreshPublicKey == "" {
+		return nil, fmt.Errorf("Config error: JWT_REFRESH_PUBLIC_KEY is not set")
+	}
 	return cfg, nil
 }
 
