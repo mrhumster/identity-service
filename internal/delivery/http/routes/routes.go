@@ -1,11 +1,9 @@
 package routes
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -69,41 +67,6 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(userService, tokenService, cfg.Server.JwtSecret, cfg.Server.Domain)
 	commonHandler := handler.NewCommonHandler(tokenService)
-
-	// PERMISSIONS
-
-	type permission struct {
-		sub string
-		obj string
-		act string
-	}
-
-	policies := []struct {
-		params permission
-		desc   string
-	}{
-		{permission{"*", "users", "read"}, "users read policy"},
-		{permission{"*", "stream", "read"}, "stream read policy"},
-		{permission{"*", "stream", "write"}, "stream write policy"},
-	}
-
-	for _, policy := range policies {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
-		_, err := permissionClient.AddPolicyIfNotExists(ctx,
-			policy.params.sub,
-			policy.params.obj,
-			policy.params.act,
-		)
-
-		cancel()
-
-		if err != nil {
-			log.Printf("⚠️ Failed to add %s: %v", policy.desc, err)
-		} else {
-			log.Printf("✅ Successfully added %s", policy.desc)
-		}
-	}
 
 	// ROUTE
 	r.POST("/auth/login", authHandler.Login)

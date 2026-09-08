@@ -29,6 +29,7 @@ type Server struct {
 	CasbinModel     string
 	Domain          string
 	AuthServiceAddr string
+	AdminEmail      string
 }
 
 type JWT struct {
@@ -79,6 +80,7 @@ func LoadConfig() (*Config, error) {
 			CasbinModel:     os.Getenv("CASBIN_MODEL"),
 			Domain:          os.Getenv("DOMAIN"),
 			AuthServiceAddr: os.Getenv("AUTH_SERVICE_ADDRESS"),
+			AdminEmail:      getEnv("ADMIN_EMAIL", ""),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   getEnv("JWT_ACCESS_PRIVATE_KEY", ""),
@@ -185,6 +187,7 @@ func TestConfig() (*Config, error) {
 			CasbinModel:     getEnv("TEST_CASBIN_MODEL", casbinModelPath),
 			Domain:          getEnv("TEST_DOMAIN", "localhost"),
 			AuthServiceAddr: getEnv("TEST_AUTH_SERVICE_ADDRESS", "localhost:50051"),
+			AdminEmail:      getEnv("TEST_ADMIN_EMAIL", ""),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   string(accessPrivateKey),

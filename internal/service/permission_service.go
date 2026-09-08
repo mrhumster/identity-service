@@ -18,6 +18,8 @@ type PermissionClient interface {
 	AddPolicy(ctx context.Context, userID, resource, action string) (bool, error)
 	RemovePolicy(ctx context.Context, userID, resource, action string) (bool, error)
 	AddPolicyIfNotExists(ctx context.Context, userID, resource, action string) (bool, error)
+	AddRoleForUser(ctx context.Context, userID, role string) (bool, error)
+	RemoveRoleForUser(ctx context.Context, userID, role string) (bool, error)
 	Close() error
 }
 
@@ -92,6 +94,18 @@ func (p *PermissionService) AddPolicy(sub, obj, act string) (bool, error) {
 
 func (p *PermissionService) RemovePolicy(sub, obj, act string) (bool, error) {
 	return p.enforcer.RemovePolicy(sub, obj, act)
+}
+
+func (p *PermissionService) AddRoleForUser(userID, role string) (bool, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.enforcer.AddGroupingPolicy(userID, role)
+}
+
+func (p *PermissionService) RemoveRoleForUser(userID, role string) (bool, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.enforcer.RemoveGroupingPolicy(userID, role)
 }
 
 func (p *PermissionService) Close() error {

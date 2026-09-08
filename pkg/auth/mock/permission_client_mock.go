@@ -70,6 +70,21 @@ func (mr *MockPermissionClientMockRecorder) AddPolicyIfNotExists(ctx, userID, re
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPolicyIfNotExists", reflect.TypeOf((*MockPermissionClient)(nil).AddPolicyIfNotExists), ctx, userID, resource, action)
 }
 
+// AddRoleForUser mocks base method.
+func (m *MockPermissionClient) AddRoleForUser(ctx context.Context, userID, role string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddRoleForUser", ctx, userID, role)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddRoleForUser indicates an expected call of AddRoleForUser.
+func (mr *MockPermissionClientMockRecorder) AddRoleForUser(ctx, userID, role any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRoleForUser", reflect.TypeOf((*MockPermissionClient)(nil).AddRoleForUser), ctx, userID, role)
+}
+
 // CheckPermission mocks base method.
 func (m *MockPermissionClient) CheckPermission(ctx context.Context, userID, resource, action string) (bool, error) {
 	m.ctrl.T.Helper()
@@ -112,4 +127,19 @@ func (m *MockPermissionClient) RemovePolicy(ctx context.Context, userID, resourc
 func (mr *MockPermissionClientMockRecorder) RemovePolicy(ctx, userID, resource, action any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemovePolicy", reflect.TypeOf((*MockPermissionClient)(nil).RemovePolicy), ctx, userID, resource, action)
+}
+
+// RemoveRoleForUser mocks base method.
+func (m *MockPermissionClient) RemoveRoleForUser(ctx context.Context, userID, role string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveRoleForUser", ctx, userID, role)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RemoveRoleForUser indicates an expected call of RemoveRoleForUser.
+func (mr *MockPermissionClientMockRecorder) RemoveRoleForUser(ctx, userID, role any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveRoleForUser", reflect.TypeOf((*MockPermissionClient)(nil).RemoveRoleForUser), ctx, userID, role)
 }

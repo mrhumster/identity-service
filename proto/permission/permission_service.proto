@@ -2,13 +2,15 @@ syntax = "proto3";
 
 package permission;
 
-option go_package = "github.com/mrhumster/identity-service/proto/gen/go/permission";
+option go_package = "github.com/mrhumster/identity-service/gen/go/permission";
 
 service PermissionService {
   rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
   rpc AddPolicy(AddPolicyRequest) returns (AddPolicyResponse);
   rpc RemovePolicy(RemovePolicyRequest) returns (RemovePolicyResponse);
   rpc AddPolicyIfNotExists(AddPolicyIfNotExistsRequest) returns (AddPolicyIfNotExistsResponse);
+  rpc AddRoleForUser(AddRoleForUserRequest) returns (AddRoleForUserResponse);
+  rpc RemoveRoleForUser(RemoveRoleForUserRequest) returns (RemoveRoleForUserResponse);
 }
 
 message CheckPermissionRequest {
@@ -52,5 +54,25 @@ message AddPolicyIfNotExistsRequest {
 
 message AddPolicyIfNotExistsResponse {
   bool exists = 1;
+  string error = 2;
+}
+
+message AddRoleForUserRequest {
+  string user_id = 1;
+  string role = 2;
+}
+
+message AddRoleForUserResponse {
+  bool added = 1;
+  string error = 2;
+}
+
+message RemoveRoleForUserRequest {
+  string user_id = 1;
+  string role = 2;
+}
+
+message RemoveRoleForUserResponse {
+  bool removed = 1;
   string error = 2;
 }

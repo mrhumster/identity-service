@@ -13,6 +13,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user models.User) (*uuid.UUID, error)
 	ReadUserByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, user request.UpdateUserRequest) (*uuid.UUID, error)
+	UpdateUserRole(ctx context.Context, id uuid.UUID, role string) error
 	DeleteUserByID(ctx context.Context, id uuid.UUID) error
 	ReadUserList(ctx context.Context, l, page int64) ([]models.User, int64, error)
 	ReadUserByEmail(ctx context.Context, value string) (*models.User, error)

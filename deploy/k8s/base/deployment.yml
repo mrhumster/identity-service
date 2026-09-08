@@ -83,6 +83,8 @@ spec:
                 secretKeyRef:
                   name: casbin-redis
                   key: redis-password
+            - name: ADMIN_EMAIL
+              value: ""
           resources:
             requests:
               memory: "256Mi"

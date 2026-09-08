@@ -42,6 +42,14 @@ func TestUserService_Create(t *testing.T) {
 		Return(true, nil).
 		AnyTimes()
 
+	permissionClient.EXPECT().
+		AddRoleForUser(
+			gomock.Any(),
+			gomock.Any(),
+			gomock.Any()).
+		Return(true, nil).
+		AnyTimes()
+
 	service := NewUserService(repo, permissionClient)
 
 	ctx := context.Background()
@@ -89,6 +97,14 @@ func TestUserService_Validate(t *testing.T) {
 	permissionClient.EXPECT().
 		AddPolicy(
 			gomock.Any(),
+			gomock.Any(),
+			gomock.Any(),
+			gomock.Any()).
+		Return(true, nil).
+		AnyTimes()
+
+	permissionClient.EXPECT().
+		AddRoleForUser(
 			gomock.Any(),
 			gomock.Any(),
 			gomock.Any()).

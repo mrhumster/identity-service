@@ -23,6 +23,8 @@ const (
 	PermissionService_AddPolicy_FullMethodName            = "/permission.PermissionService/AddPolicy"
 	PermissionService_RemovePolicy_FullMethodName         = "/permission.PermissionService/RemovePolicy"
 	PermissionService_AddPolicyIfNotExists_FullMethodName = "/permission.PermissionService/AddPolicyIfNotExists"
+	PermissionService_AddRoleForUser_FullMethodName       = "/permission.PermissionService/AddRoleForUser"
+	PermissionService_RemoveRoleForUser_FullMethodName    = "/permission.PermissionService/RemoveRoleForUser"
 )
 
 // PermissionServiceClient is the client API for PermissionService service.
@@ -33,6 +35,8 @@ type PermissionServiceClient interface {
 	AddPolicy(ctx context.Context, in *AddPolicyRequest, opts ...grpc.CallOption) (*AddPolicyResponse, error)
 	RemovePolicy(ctx context.Context, in *RemovePolicyRequest, opts ...grpc.CallOption) (*RemovePolicyResponse, error)
 	AddPolicyIfNotExists(ctx context.Context, in *AddPolicyIfNotExistsRequest, opts ...grpc.CallOption) (*AddPolicyIfNotExistsResponse, error)
+	AddRoleForUser(ctx context.Context, in *AddRoleForUserRequest, opts ...grpc.CallOption) (*AddRoleForUserResponse, error)
+	RemoveRoleForUser(ctx context.Context, in *RemoveRoleForUserRequest, opts ...grpc.CallOption) (*RemoveRoleForUserResponse, error)
 }
 
 type permissionServiceClient struct {
@@ -83,6 +87,26 @@ func (c *permissionServiceClient) AddPolicyIfNotExists(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *permissionServiceClient) AddRoleForUser(ctx context.Context, in *AddRoleForUserRequest, opts ...grpc.CallOption) (*AddRoleForUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddRoleForUserResponse)
+	err := c.cc.Invoke(ctx, PermissionService_AddRoleForUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *permissionServiceClient) RemoveRoleForUser(ctx context.Context, in *RemoveRoleForUserRequest, opts ...grpc.CallOption) (*RemoveRoleForUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveRoleForUserResponse)
+	err := c.cc.Invoke(ctx, PermissionService_RemoveRoleForUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PermissionServiceServer is the server API for PermissionService service.
 // All implementations must embed UnimplementedPermissionServiceServer
 // for forward compatibility.
@@ -91,6 +115,8 @@ type PermissionServiceServer interface {
 	AddPolicy(context.Context, *AddPolicyRequest) (*AddPolicyResponse, error)
 	RemovePolicy(context.Context, *RemovePolicyRequest) (*RemovePolicyResponse, error)
 	AddPolicyIfNotExists(context.Context, *AddPolicyIfNotExistsRequest) (*AddPolicyIfNotExistsResponse, error)
+	AddRoleForUser(context.Context, *AddRoleForUserRequest) (*AddRoleForUserResponse, error)
+	RemoveRoleForUser(context.Context, *RemoveRoleForUserRequest) (*RemoveRoleForUserResponse, error)
 	mustEmbedUnimplementedPermissionServiceServer()
 }
 
@@ -112,6 +138,12 @@ func (UnimplementedPermissionServiceServer) RemovePolicy(context.Context, *Remov
 }
 func (UnimplementedPermissionServiceServer) AddPolicyIfNotExists(context.Context, *AddPolicyIfNotExistsRequest) (*AddPolicyIfNotExistsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPolicyIfNotExists not implemented")
+}
+func (UnimplementedPermissionServiceServer) AddRoleForUser(context.Context, *AddRoleForUserRequest) (*AddRoleForUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddRoleForUser not implemented")
+}
+func (UnimplementedPermissionServiceServer) RemoveRoleForUser(context.Context, *RemoveRoleForUserRequest) (*RemoveRoleForUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveRoleForUser not implemented")
 }
 func (UnimplementedPermissionServiceServer) mustEmbedUnimplementedPermissionServiceServer() {}
 func (UnimplementedPermissionServiceServer) testEmbeddedByValue()                           {}
@@ -206,6 +238,42 @@ func _PermissionService_AddPolicyIfNotExists_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PermissionService_AddRoleForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRoleForUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PermissionServiceServer).AddRoleForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PermissionService_AddRoleForUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PermissionServiceServer).AddRoleForUser(ctx, req.(*AddRoleForUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PermissionService_RemoveRoleForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveRoleForUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PermissionServiceServer).RemoveRoleForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PermissionService_RemoveRoleForUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PermissionServiceServer).RemoveRoleForUser(ctx, req.(*RemoveRoleForUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PermissionService_ServiceDesc is the grpc.ServiceDesc for PermissionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +296,14 @@ var PermissionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddPolicyIfNotExists",
 			Handler:    _PermissionService_AddPolicyIfNotExists_Handler,
+		},
+		{
+			MethodName: "AddRoleForUser",
+			Handler:    _PermissionService_AddRoleForUser_Handler,
+		},
+		{
+			MethodName: "RemoveRoleForUser",
+			Handler:    _PermissionService_RemoveRoleForUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

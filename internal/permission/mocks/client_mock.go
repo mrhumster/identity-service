@@ -30,6 +30,16 @@ func (m *PermissionClientMock) AddPolicyIfNotExists(ctx context.Context, userID,
 	return args.Bool(0), args.Error(1)
 }
 
+func (m *PermissionClientMock) AddRoleForUser(ctx context.Context, userID, role string) (bool, error) {
+	args := m.Called(ctx, userID, role)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *PermissionClientMock) RemoveRoleForUser(ctx context.Context, userID, role string) (bool, error) {
+	args := m.Called(ctx, userID, role)
+	return args.Bool(0), args.Error(1)
+}
+
 func (m *PermissionClientMock) Close() error {
 	args := m.Called()
 	return args.Error(0)

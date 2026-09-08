@@ -9,5 +9,7 @@ type PermissionClient interface {
 	AddPolicy(ctx context.Context, userID, resource, action string) (bool, error)
 	RemovePolicy(ctx context.Context, userID, resource, action string) (bool, error)
 	AddPolicyIfNotExists(ctx context.Context, userID, resource, action string) (bool, error)
+	AddRoleForUser(ctx context.Context, userID, role string) (bool, error)
+	RemoveRoleForUser(ctx context.Context, userID, role string) (bool, error)
 	Close() error
 }

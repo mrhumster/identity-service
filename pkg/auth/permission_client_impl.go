@@ -77,3 +77,25 @@ func (c *PermissionGRPCClient) AddPolicyIfNotExists(ctx context.Context, userID,
 	}
 	return resp.Exists, nil
 }
+
+func (c *PermissionGRPCClient) AddRoleForUser(ctx context.Context, userID, role string) (bool, error) {
+	resp, err := c.service.AddRoleForUser(ctx, &permission.AddRoleForUserRequest{
+		UserId: userID,
+		Role:   role,
+	})
+	if err != nil {
+		return false, fmt.Errorf("add role failed: %w", err)
+	}
+	return resp.Added, nil
+}
+
+func (c *PermissionGRPCClient) RemoveRoleForUser(ctx context.Context, userID, role string) (bool, error) {
+	resp, err := c.service.RemoveRoleForUser(ctx, &permission.RemoveRoleForUserRequest{
+		UserId: userID,
+		Role:   role,
+	})
+	if err != nil {
+		return false, fmt.Errorf("remove role failed: %w", err)
+	}
+	return resp.Removed, nil
+}

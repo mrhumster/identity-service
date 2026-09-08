@@ -469,6 +469,214 @@ func (x *AddPolicyIfNotExistsResponse) GetError() string {
 	return ""
 }
 
+type AddRoleForUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddRoleForUserRequest) Reset() {
+	*x = AddRoleForUserRequest{}
+	mi := &file_proto_permission_permission_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddRoleForUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddRoleForUserRequest) ProtoMessage() {}
+
+func (x *AddRoleForUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_permission_permission_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddRoleForUserRequest.ProtoReflect.Descriptor instead.
+func (*AddRoleForUserRequest) Descriptor() ([]byte, []int) {
+	return file_proto_permission_permission_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *AddRoleForUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *AddRoleForUserRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type AddRoleForUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Added         bool                   `protobuf:"varint,1,opt,name=added,proto3" json:"added,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddRoleForUserResponse) Reset() {
+	*x = AddRoleForUserResponse{}
+	mi := &file_proto_permission_permission_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddRoleForUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddRoleForUserResponse) ProtoMessage() {}
+
+func (x *AddRoleForUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_permission_permission_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddRoleForUserResponse.ProtoReflect.Descriptor instead.
+func (*AddRoleForUserResponse) Descriptor() ([]byte, []int) {
+	return file_proto_permission_permission_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *AddRoleForUserResponse) GetAdded() bool {
+	if x != nil {
+		return x.Added
+	}
+	return false
+}
+
+func (x *AddRoleForUserResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type RemoveRoleForUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveRoleForUserRequest) Reset() {
+	*x = RemoveRoleForUserRequest{}
+	mi := &file_proto_permission_permission_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveRoleForUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveRoleForUserRequest) ProtoMessage() {}
+
+func (x *RemoveRoleForUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_permission_permission_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveRoleForUserRequest.ProtoReflect.Descriptor instead.
+func (*RemoveRoleForUserRequest) Descriptor() ([]byte, []int) {
+	return file_proto_permission_permission_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RemoveRoleForUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RemoveRoleForUserRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type RemoveRoleForUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Removed       bool                   `protobuf:"varint,1,opt,name=removed,proto3" json:"removed,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveRoleForUserResponse) Reset() {
+	*x = RemoveRoleForUserResponse{}
+	mi := &file_proto_permission_permission_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveRoleForUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveRoleForUserResponse) ProtoMessage() {}
+
+func (x *RemoveRoleForUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_permission_permission_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveRoleForUserResponse.ProtoReflect.Descriptor instead.
+func (*RemoveRoleForUserResponse) Descriptor() ([]byte, []int) {
+	return file_proto_permission_permission_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *RemoveRoleForUserResponse) GetRemoved() bool {
+	if x != nil {
+		return x.Removed
+	}
+	return false
+}
+
+func (x *RemoveRoleForUserResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 var File_proto_permission_permission_service_proto protoreflect.FileDescriptor
 
 const file_proto_permission_permission_service_proto_rawDesc = "" +
@@ -508,12 +716,26 @@ const file_proto_permission_permission_service_proto_rawDesc = "" +
 	"permission\"L\n" +
 	"\x1cAddPolicyIfNotExistsResponse\x12\x16\n" +
 	"\x06exists\x18\x01 \x01(\bR\x06exists\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error2\xf7\x02\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"D\n" +
+	"\x15AddRoleForUserRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\"D\n" +
+	"\x16AddRoleForUserResponse\x12\x14\n" +
+	"\x05added\x18\x01 \x01(\bR\x05added\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"G\n" +
+	"\x18RemoveRoleForUserRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\"K\n" +
+	"\x19RemoveRoleForUserResponse\x12\x18\n" +
+	"\aremoved\x18\x01 \x01(\bR\aremoved\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error2\xb2\x04\n" +
 	"\x11PermissionService\x12Z\n" +
 	"\x0fCheckPermission\x12\".permission.CheckPermissionRequest\x1a#.permission.CheckPermissionResponse\x12H\n" +
 	"\tAddPolicy\x12\x1c.permission.AddPolicyRequest\x1a\x1d.permission.AddPolicyResponse\x12Q\n" +
 	"\fRemovePolicy\x12\x1f.permission.RemovePolicyRequest\x1a .permission.RemovePolicyResponse\x12i\n" +
-	"\x14AddPolicyIfNotExists\x12'.permission.AddPolicyIfNotExistsRequest\x1a(.permission.AddPolicyIfNotExistsResponseB?Z=github.com/mrhumster/identity-service/proto/gen/go/permissionb\x06proto3"
+	"\x14AddPolicyIfNotExists\x12'.permission.AddPolicyIfNotExistsRequest\x1a(.permission.AddPolicyIfNotExistsResponse\x12W\n" +
+	"\x0eAddRoleForUser\x12!.permission.AddRoleForUserRequest\x1a\".permission.AddRoleForUserResponse\x12`\n" +
+	"\x11RemoveRoleForUser\x12$.permission.RemoveRoleForUserRequest\x1a%.permission.RemoveRoleForUserResponseB9Z7github.com/mrhumster/identity-service/gen/go/permissionb\x06proto3"
 
 var (
 	file_proto_permission_permission_service_proto_rawDescOnce sync.Once
@@ -527,7 +749,7 @@ func file_proto_permission_permission_service_proto_rawDescGZIP() []byte {
 	return file_proto_permission_permission_service_proto_rawDescData
 }
 
-var file_proto_permission_permission_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_proto_permission_permission_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_proto_permission_permission_service_proto_goTypes = []any{
 	(*CheckPermissionRequest)(nil),       // 0: permission.CheckPermissionRequest
 	(*CheckPermissionResponse)(nil),      // 1: permission.CheckPermissionResponse
@@ -537,21 +759,29 @@ var file_proto_permission_permission_service_proto_goTypes = []any{
 	(*RemovePolicyResponse)(nil),         // 5: permission.RemovePolicyResponse
 	(*AddPolicyIfNotExistsRequest)(nil),  // 6: permission.AddPolicyIfNotExistsRequest
 	(*AddPolicyIfNotExistsResponse)(nil), // 7: permission.AddPolicyIfNotExistsResponse
+	(*AddRoleForUserRequest)(nil),        // 8: permission.AddRoleForUserRequest
+	(*AddRoleForUserResponse)(nil),       // 9: permission.AddRoleForUserResponse
+	(*RemoveRoleForUserRequest)(nil),     // 10: permission.RemoveRoleForUserRequest
+	(*RemoveRoleForUserResponse)(nil),    // 11: permission.RemoveRoleForUserResponse
 }
 var file_proto_permission_permission_service_proto_depIdxs = []int32{
-	0, // 0: permission.PermissionService.CheckPermission:input_type -> permission.CheckPermissionRequest
-	2, // 1: permission.PermissionService.AddPolicy:input_type -> permission.AddPolicyRequest
-	4, // 2: permission.PermissionService.RemovePolicy:input_type -> permission.RemovePolicyRequest
-	6, // 3: permission.PermissionService.AddPolicyIfNotExists:input_type -> permission.AddPolicyIfNotExistsRequest
-	1, // 4: permission.PermissionService.CheckPermission:output_type -> permission.CheckPermissionResponse
-	3, // 5: permission.PermissionService.AddPolicy:output_type -> permission.AddPolicyResponse
-	5, // 6: permission.PermissionService.RemovePolicy:output_type -> permission.RemovePolicyResponse
-	7, // 7: permission.PermissionService.AddPolicyIfNotExists:output_type -> permission.AddPolicyIfNotExistsResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: permission.PermissionService.CheckPermission:input_type -> permission.CheckPermissionRequest
+	2,  // 1: permission.PermissionService.AddPolicy:input_type -> permission.AddPolicyRequest
+	4,  // 2: permission.PermissionService.RemovePolicy:input_type -> permission.RemovePolicyRequest
+	6,  // 3: permission.PermissionService.AddPolicyIfNotExists:input_type -> permission.AddPolicyIfNotExistsRequest
+	8,  // 4: permission.PermissionService.AddRoleForUser:input_type -> permission.AddRoleForUserRequest
+	10, // 5: permission.PermissionService.RemoveRoleForUser:input_type -> permission.RemoveRoleForUserRequest
+	1,  // 6: permission.PermissionService.CheckPermission:output_type -> permission.CheckPermissionResponse
+	3,  // 7: permission.PermissionService.AddPolicy:output_type -> permission.AddPolicyResponse
+	5,  // 8: permission.PermissionService.RemovePolicy:output_type -> permission.RemovePolicyResponse
+	7,  // 9: permission.PermissionService.AddPolicyIfNotExists:output_type -> permission.AddPolicyIfNotExistsResponse
+	9,  // 10: permission.PermissionService.AddRoleForUser:output_type -> permission.AddRoleForUserResponse
+	11, // 11: permission.PermissionService.RemoveRoleForUser:output_type -> permission.RemoveRoleForUserResponse
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_proto_permission_permission_service_proto_init() }
@@ -565,7 +795,7 @@ func file_proto_permission_permission_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_permission_permission_service_proto_rawDesc), len(file_proto_permission_permission_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

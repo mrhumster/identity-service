@@ -19,9 +19,11 @@ import (
 	"github.com/mrhumster/identity-service/internal/database"
 	"github.com/mrhumster/identity-service/internal/delivery/http/routes"
 	"github.com/mrhumster/identity-service/internal/permission"
+	"github.com/mrhumster/identity-service/internal/repository"
 	"github.com/mrhumster/identity-service/internal/service"
 	"github.com/mrhumster/identity-service/pkg/auth"
 	"google.golang.org/grpc"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -33,16 +35,7 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
 
 	slog.SetDefault(logger)
-	slog.Info("🚀 Start identity-service", "version", "0.1.3")
-
-	// Debug ENV
-	for _, k := range []string{
-		"JWT_ACCESS_PRIVATE_KEY", "JWT_ACCESS_PUBLIC_KEY",
-		"JWT_REFRESH_PRIVATE_KEY", "JWT_REFRESH_PUBLIC_KEY",
-	} {
-		v := os.Getenv(k)
-		slog.Info("env check", "key", k, "len", len(v), "first20", v[:min(20, len(v))])
-	}
+	slog.Info("🚀 Start identity-service", "version", "0.1.4")
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -115,6 +108,10 @@ func main() {
 			panic("⚠️ Error init permission service")
 		}
 
+		if err := bootstrapRBAC(db, permissionService, cfg.Server.AdminEmail); err != nil {
+			slog.Error("❌ RBAC bootstrap failed", "error", err)
+		}
+
 		defer func() {
 			log.Println("🟡 Closing Permission Service (Watcher)...")
 			permissionService.Close()
@@ -144,4 +141,84 @@ func main() {
 	}
 
 	log.Println("🟢 Server stoped")
+}
+
+// bootstrapRBAC seeds role policies, migrates existing users to the "member"
+// role and promotes the ADMIN_EMAIL user to "admin". It uses the local
+// enforcer (not the gRPC client) because the gRPC server is not yet serving
+// when the caller runs.
+func bootstrapRBAC(db *gorm.DB, ps *service.PermissionService, adminEmail string) error {
+	ctx := context.Background()
+	logger := slog.Default()
+
+	rolePolicies := []struct {
+		role, obj, act string
+	}{
+		{"admin", "users", "read"},
+		{"admin", "users/*", "read"},
+		{"admin", "users/*", "write"},
+		{"admin", "users/*", "delete"},
+		{"member", "stream", "read"},
+		{"member", "stream", "write"},
+	}
+
+	for _, p := range rolePolicies {
+		added, err := ps.AddPolicyIfNotExists(p.role, p.obj, p.act)
+		if err != nil {
+			logger.Error("❌ RBAC: failed to seed policy", "policy", p, "error", err)
+			continue
+		}
+		if added {
+			logger.Info("✅ RBAC: seeded policy", "role", p.role, "obj", p.obj, "act", p.act)
+		}
+	}
+
+	userRepo := repository.NewGormUserRepository(db)
+	users, _, err := userRepo.ReadUserList(ctx, 100000, 1)
+	if err != nil {
+		return fmt.Errorf("failed to load users for RBAC migration: %w", err)
+	}
+
+	for _, u := range users {
+		uid := u.ID.String()
+
+		roleAdded, err := ps.AddRoleForUser(uid, "member")
+		if err != nil {
+			logger.Error("❌ RBAC: failed to assign member role", "user", uid, "error", err)
+		} else if roleAdded {
+			logger.Info("✅ RBAC: assigned member role", "user", uid)
+		}
+
+		for _, p := range [][]string{{"users", "read"}, {"stream", "read"}, {"stream", "write"}} {
+			removed, err := ps.RemovePolicy(uid, p[0], p[1])
+			if err != nil {
+				logger.Error("❌ RBAC: failed to remove legacy policy", "user", uid, "obj", p[0], "act", p[1], "error", err)
+				continue
+			}
+			if removed {
+				logger.Info("✅ RBAC: removed legacy collection policy", "user", uid, "obj", p[0], "act", p[1])
+			}
+		}
+	}
+
+	if adminEmail == "" {
+		return nil
+	}
+
+	admin, err := userRepo.ReadUserByEmail(ctx, adminEmail)
+	if err != nil {
+		return fmt.Errorf("ADMIN_EMAIL user not found: %w", err)
+	}
+
+	if admin.Role != "admin" {
+		if err := userRepo.UpdateUserRole(ctx, admin.ID, "admin"); err != nil {
+			return fmt.Errorf("failed to promote ADMIN_EMAIL user to admin: %w", err)
+		}
+	}
+	roleAdded, err := ps.AddRoleForUser(admin.ID.String(), "admin")
+	if err != nil {
+		return fmt.Errorf("failed to assign admin role: %w", err)
+	}
+	logger.Info("✅ RBAC: admin role ensured", "user", admin.ID.String(), "email", adminEmail, "added", roleAdded)
+	return nil
 }

@@ -56,9 +56,7 @@ func (s *UserService) CreateUser(ctx context.Context, user models.User) (*uuid.U
 	s.permissionClient.AddPolicy(ctx, policy, resource, "read")
 	s.permissionClient.AddPolicy(ctx, policy, resource, "write")
 	s.permissionClient.AddPolicy(ctx, policy, resource, "delete")
-	s.permissionClient.AddPolicy(ctx, policy, "users", "read")
-	s.permissionClient.AddPolicy(ctx, policy, "stream", "read")
-	s.permissionClient.AddPolicy(ctx, policy, "stream", "write")
+	s.permissionClient.AddRoleForUser(ctx, policy, "member")
 	s.mu.Unlock()
 	return id, nil
 }
@@ -80,8 +78,8 @@ func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 		s.permissionClient.RemovePolicy(ctx, policy, resource, "read")
 		s.permissionClient.RemovePolicy(ctx, policy, resource, "write")
 		s.permissionClient.RemovePolicy(ctx, policy, resource, "delete")
-		s.permissionClient.RemovePolicy(ctx, policy, "users", "read")
-		s.permissionClient.RemovePolicy(ctx, policy, "stream", "read")
+		s.permissionClient.RemoveRoleForUser(ctx, policy, "member")
+		s.permissionClient.RemoveRoleForUser(ctx, policy, "admin")
 	}
 	return err
 }

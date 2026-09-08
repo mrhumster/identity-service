@@ -70,3 +70,27 @@ func (s *PermissionGRPCServer) AddPolicyIfNotExists(ctx context.Context, req *pe
 		Error:  fmt.Sprintf("Add policy if exists %s", err),
 	}, nil
 }
+
+func (s *PermissionGRPCServer) AddRoleForUser(ctx context.Context, req *permission.AddRoleForUserRequest) (*permission.AddRoleForUserResponse, error) {
+	added, err := s.permissionServer.AddRoleForUser(req.GetUserId(), req.GetRole())
+	slog.Info("Add role for user: ",
+		"User", req.GetUserId(),
+		"Role", req.GetRole(),
+		"Added", added)
+	return &permission.AddRoleForUserResponse{
+		Added: added,
+		Error: fmt.Sprintf("Add role err %s", err),
+	}, nil
+}
+
+func (s *PermissionGRPCServer) RemoveRoleForUser(ctx context.Context, req *permission.RemoveRoleForUserRequest) (*permission.RemoveRoleForUserResponse, error) {
+	removed, err := s.permissionServer.RemoveRoleForUser(req.GetUserId(), req.GetRole())
+	slog.Info("Remove role for user: ",
+		"User", req.GetUserId(),
+		"Role", req.GetRole(),
+		"Removed", removed)
+	return &permission.RemoveRoleForUserResponse{
+		Removed: removed,
+		Error:   fmt.Sprintf("Remove role err %s", err),
+	}, nil
+}

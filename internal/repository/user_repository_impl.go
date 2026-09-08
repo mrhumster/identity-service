@@ -70,6 +70,14 @@ func (r *GormUserRepository) UpdateUser(ctx context.Context, id uuid.UUID, user 
 	return &userForUpdate.ID, nil
 }
 
+func (r *GormUserRepository) UpdateUserRole(ctx context.Context, id uuid.UUID, role string) error {
+	result := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", id).
+		Update("role", role)
+	return result.Error
+}
+
 func (r *GormUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.User{}, id)
 	return result.Error
