@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -41,18 +41,16 @@ func (a *AuthHandler) Login(c *gin.Context) {
 	}
 
 	if u, err = a.UserService.ValidateUser(c, req.Email, req.Password); err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse(err.Error()))
+		slog.Debug("login failed", "email", req.Email, "error", err)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse("invalid email or password"))
 		return
 	}
 
 	tokenPair, err := a.TokenService.GenerateToken(u)
 	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			response.ErrorResponse(
-				fmt.Sprintf("generate token: %v", err.Error()),
-			),
-		)
+		slog.Error("generate token failed", "error", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.ErrorResponse("internal server error"))
+		return
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
@@ -91,6 +89,7 @@ func (a *AuthHandler) Refresh(c *gin.Context) {
 	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse("invalid user id in claim"))
+		return
 	}
 	u, err := a.UserService.ReadUser(c, userID)
 	if err != nil || u.TokenVersion != claims.TokenVersion {

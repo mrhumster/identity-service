@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -11,6 +13,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/response"
 	"github.com/mrhumster/identity-service/internal/domain/models"
 	"github.com/mrhumster/identity-service/internal/service"
+	"gorm.io/gorm"
 )
 
 type UserHandler struct {
@@ -32,7 +35,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
 			return
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -51,8 +54,9 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 			})
 
 		default:
+			slog.Error("create user failed", "error", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
+				"error": "internal server error",
 			})
 		}
 		return
@@ -65,14 +69,18 @@ func (h *UserHandler) ReadUser(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := uuid.Parse(strId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
 	user, err := h.service.ReadUser(c, id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		c.Abort()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		} else {
+			slog.Error("read user failed", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 	var u response.UserResponse
@@ -90,17 +98,27 @@ func (h *UserHandler) Update(c *gin.Context) {
 
 	var user request.UpdateUserRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 	_, err = h.service.UpdateUser(c, id, user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		} else {
+			slog.Error("update user failed", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 	updatedUser, err := h.service.ReadUser(c, id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		} else {
+			slog.Error("read user after update failed", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 	var response response.UserResponse
@@ -112,13 +130,18 @@ func (h *UserHandler) Delete(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := uuid.Parse(strId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
 	err = h.service.DeleteUser(c, id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		} else {
+			slog.Error("delete user failed", "error", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
 		return
 	}
 	c.JSON(http.StatusNoContent, id)
@@ -127,11 +150,16 @@ func (h *UserHandler) Delete(c *gin.Context) {
 func (h *UserHandler) ReadUsers(c *gin.Context) {
 	page := int64(1)
 	limit := int64(10)
+	var err error
 
 	pageStr := c.Query("page")
 
 	if pageStr != "" {
-		page, _ = strconv.ParseInt(pageStr, 10, 64)
+		page, err = strconv.ParseInt(pageStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "page is incorrect"})
+			return
+		}
 	}
 
 	if page < 1 {
@@ -141,16 +169,25 @@ func (h *UserHandler) ReadUsers(c *gin.Context) {
 
 	limitStr := c.Query("limit")
 	if limitStr != "" {
-		limit, _ = strconv.ParseInt(limitStr, 10, 64)
+		limit, err = strconv.ParseInt(limitStr, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "limit is incorrect"})
+			return
+		}
 	}
 	if limit < 1 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "limit is incorrect"})
 		return
 	}
+	if limit > 100 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "limit must be 100 or less"})
+		return
+	}
 
 	users, total, err := h.service.ReadUserList(c, limit, page)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		slog.Error("read users list failed", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 	var usersReponse []response.UserResponse
@@ -171,7 +208,8 @@ func (h *UserHandler) GetAuthUser(c *gin.Context) {
 	userUUID := c.MustGet("user").(uuid.UUID)
 	user, err := h.service.ReadUser(c, userUUID)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		slog.Error("get auth user failed", "error", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 	var resp response.UserResponse
