@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,12 +26,17 @@ type Redis struct {
 }
 
 type Server struct {
-	ServerAddr      string
-	JwtSecret       string
-	CasbinModel     string
-	Domain          string
-	AuthServiceAddr string
-	AdminEmail      string
+	ServerAddr         string
+	JwtSecret          string
+	CasbinModel        string
+	Domain             string
+	AuthServiceAddr    string
+	AdminEmail         string
+	GRPCTLSCertFile    string
+	GRPCTLSKeyFile     string
+	GRPCTLSCAFile      string
+	GRPCTLSAllowedOUs  []string
+	GRPCTLSEnabled     bool
 }
 
 type JWT struct {
@@ -75,12 +82,17 @@ func LoadConfig() (*Config, error) {
 			TimeZone: "UTC",
 		},
 		Server: Server{
-			ServerAddr:      os.Getenv("SERVER_ADDR"),
-			JwtSecret:       os.Getenv("JWT_SECRET"),
-			CasbinModel:     os.Getenv("CASBIN_MODEL"),
-			Domain:          os.Getenv("DOMAIN"),
-			AuthServiceAddr: os.Getenv("AUTH_SERVICE_ADDRESS"),
-			AdminEmail:      getEnv("ADMIN_EMAIL", ""),
+			ServerAddr:         os.Getenv("SERVER_ADDR"),
+			JwtSecret:          os.Getenv("JWT_SECRET"),
+			CasbinModel:        os.Getenv("CASBIN_MODEL"),
+			Domain:             os.Getenv("DOMAIN"),
+			AuthServiceAddr:    os.Getenv("AUTH_SERVICE_ADDRESS"),
+			AdminEmail:         getEnv("ADMIN_EMAIL", ""),
+			GRPCTLSCertFile:    os.Getenv("GRPC_TLS_CERT"),
+			GRPCTLSKeyFile:     os.Getenv("GRPC_TLS_KEY"),
+			GRPCTLSCAFile:      os.Getenv("GRPC_TLS_CA"),
+			GRPCTLSAllowedOUs:  commaSplit(getEnv("GRPC_TLS_ALLOWED_OUS", "")),
+			GRPCTLSEnabled:     getBool("GRPC_TLS_ENABLED"),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   getEnv("JWT_ACCESS_PRIVATE_KEY", ""),
@@ -124,12 +136,32 @@ func (config *Config) GetDsn() string {
 		config.SslMode,
 		config.TimeZone)
 }
-
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
+
 	return defaultValue
+}
+
+func getBool(key string) bool {
+	v, _ := strconv.ParseBool(os.Getenv(key))
+	return v
+}
+
+func commaSplit(v string) []string {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return nil
+	}
+	parts := strings.Split(v, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 func TestConfig() (*Config, error) {

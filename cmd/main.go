@@ -22,7 +22,9 @@ import (
 	"github.com/mrhumster/identity-service/internal/repository"
 	"github.com/mrhumster/identity-service/internal/service"
 	"github.com/mrhumster/identity-service/pkg/auth"
+	"github.com/mrhumster/identity-service/pkg/grpctls"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"gorm.io/gorm"
 )
 
@@ -43,7 +45,8 @@ func main() {
 	}
 	db := database.SetupDatabase(cfg)
 
-	permGRPCClient, err := auth.NewPermissionClient(cfg.Server.AuthServiceAddr)
+	clientCreds := clientTLSCreds(cfg)
+	permGRPCClient, err := auth.NewPermissionClientWithTLS(cfg.Server.AuthServiceAddr, clientCreds)
 	if err != nil {
 		panic(fmt.Sprintf("❌ Permission gRPC client: %s", err.Error()))
 	}
@@ -89,7 +92,19 @@ func main() {
 			log.Fatalf("🔴 Failed to listen: %v", err)
 		}
 
-		grpcServer := grpc.NewServer()
+		grpcOpts := []grpc.ServerOption{}
+		if cfg.Server.GRPCTLSEnabled {
+			serverCreds, terr := grpctls.ServerTLSCreds(cfg.Server.GRPCTLSCertFile, cfg.Server.GRPCTLSKeyFile, cfg.Server.GRPCTLSCAFile)
+			if terr != nil {
+				log.Fatalf("🔴 Failed to load gRPC server TLS: %v", terr)
+			}
+			grpcOpts = append(grpcOpts, grpc.Creds(serverCreds))
+			if len(cfg.Server.GRPCTLSAllowedOUs) > 0 {
+				grpcOpts = append(grpcOpts, grpc.UnaryInterceptor(grpctls.AllowOUsInterceptor(cfg.Server.GRPCTLSAllowedOUs...)))
+			}
+		}
+
+		grpcServer := grpc.NewServer(grpcOpts...)
 
 		adapter, err := gormadapter.NewAdapterByDB(db)
 		if err != nil {
@@ -141,6 +156,19 @@ func main() {
 	}
 
 	log.Println("🟢 Server stoped")
+}
+
+// clientTLSCreds builds mTLS client credentials for the PermissionService
+// gRPC connection, or nil (insecure) when TLS is disabled.
+func clientTLSCreds(cfg *config.Config) credentials.TransportCredentials {
+	if !cfg.Server.GRPCTLSEnabled {
+		return nil
+	}
+	creds, err := grpctls.ClientTLSCreds(cfg.Server.GRPCTLSCertFile, cfg.Server.GRPCTLSKeyFile, cfg.Server.GRPCTLSCAFile, "identity-service")
+	if err != nil {
+		panic(fmt.Sprintf("❌ gRPC client TLS: %s", err.Error()))
+	}
+	return creds
 }
 
 // bootstrapRBAC seeds role policies, migrates existing users to the "member"

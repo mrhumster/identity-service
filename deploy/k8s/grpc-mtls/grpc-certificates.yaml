@@ -1,0 +1,97 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grpc-identity-tls
+  namespace: go-app
+spec:
+  secretName: grpc-identity-tls
+  duration: 8760h
+  renewBefore: 720h
+  issuerRef:
+    name: ca-issuer
+    kind: Issuer
+  commonName: identity-service
+  subject:
+    organizations:
+      - go-app
+    organizationalUnits:
+      - identity-service
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - identity-service
+    - identity-service.go-app.svc.cluster.local
+    - localhost
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grpc-stream-tls
+  namespace: go-app
+spec:
+  secretName: grpc-stream-tls
+  duration: 8760h
+  renewBefore: 720h
+  issuerRef:
+    name: ca-issuer
+    kind: Issuer
+  commonName: stream-service
+  subject:
+    organizations:
+      - go-app
+    organizationalUnits:
+      - stream-service
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - stream-service
+    - stream-service.go-app.svc.cluster.local
+    - localhost
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grpc-thumbnail-tls
+  namespace: go-app
+spec:
+  secretName: grpc-thumbnail-tls
+  duration: 8760h
+  renewBefore: 720h
+  issuerRef:
+    name: ca-issuer
+    kind: Issuer
+  commonName: thumbnail-service
+  subject:
+    organizations:
+      - go-app
+    organizationalUnits:
+      - thumbnail-service
+  usages:
+    - client auth
+  dnsNames:
+    - thumbnail-service
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grpc-transcoder-tls
+  namespace: go-app
+spec:
+  secretName: grpc-transcoder-tls
+  duration: 8760h
+  renewBefore: 720h
+  issuerRef:
+    name: ca-issuer
+    kind: Issuer
+  commonName: transcoder-service
+  subject:
+    organizations:
+      - go-app
+    organizationalUnits:
+      - transcoder-service
+  usages:
+    - client auth
+  dnsNames:
+    - transcoder-service
