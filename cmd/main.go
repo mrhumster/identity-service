@@ -28,6 +28,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	version   = "dev"
+	buildDate = "unknown"
+)
+
 func main() {
 	opts := &slog.HandlerOptions{
 		Level:     slog.LevelDebug,
@@ -37,7 +42,7 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
 
 	slog.SetDefault(logger)
-	slog.Info("🚀 Start identity-service", "version", "0.1.4")
+	slog.Info("🚀 Start identity-service", "version", version, "build_date", buildDate)
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
