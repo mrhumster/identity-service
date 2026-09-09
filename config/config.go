@@ -26,17 +26,18 @@ type Redis struct {
 }
 
 type Server struct {
-	ServerAddr         string
-	JwtSecret          string
-	CasbinModel        string
-	Domain             string
-	AuthServiceAddr    string
-	AdminEmail         string
-	GRPCTLSCertFile    string
-	GRPCTLSKeyFile     string
-	GRPCTLSCAFile      string
-	GRPCTLSAllowedOUs  []string
-	GRPCTLSEnabled     bool
+	ServerAddr        string
+	JwtSecret         string
+	CasbinModel       string
+	Domain            string
+	AuthServiceAddr   string
+	AdminEmail        string
+	GRPCTLSCertFile   string
+	GRPCTLSKeyFile    string
+	GRPCTLSCAFile     string
+	GRPCTLSAllowedOUs []string
+	GRPCTLSEnabled    bool
+	AllowedOrigins    []string
 }
 
 type JWT struct {
@@ -82,17 +83,18 @@ func LoadConfig() (*Config, error) {
 			TimeZone: "UTC",
 		},
 		Server: Server{
-			ServerAddr:         os.Getenv("SERVER_ADDR"),
-			JwtSecret:          os.Getenv("JWT_SECRET"),
-			CasbinModel:        os.Getenv("CASBIN_MODEL"),
-			Domain:             os.Getenv("DOMAIN"),
-			AuthServiceAddr:    os.Getenv("AUTH_SERVICE_ADDRESS"),
-			AdminEmail:         getEnv("ADMIN_EMAIL", ""),
-			GRPCTLSCertFile:    os.Getenv("GRPC_TLS_CERT"),
-			GRPCTLSKeyFile:     os.Getenv("GRPC_TLS_KEY"),
-			GRPCTLSCAFile:      os.Getenv("GRPC_TLS_CA"),
-			GRPCTLSAllowedOUs:  commaSplit(getEnv("GRPC_TLS_ALLOWED_OUS", "")),
-			GRPCTLSEnabled:     getBool("GRPC_TLS_ENABLED"),
+			ServerAddr:        os.Getenv("SERVER_ADDR"),
+			JwtSecret:         os.Getenv("JWT_SECRET"),
+			CasbinModel:       os.Getenv("CASBIN_MODEL"),
+			Domain:            os.Getenv("DOMAIN"),
+			AuthServiceAddr:   os.Getenv("AUTH_SERVICE_ADDRESS"),
+			AdminEmail:        getEnv("ADMIN_EMAIL", ""),
+			GRPCTLSCertFile:   os.Getenv("GRPC_TLS_CERT"),
+			GRPCTLSKeyFile:    os.Getenv("GRPC_TLS_KEY"),
+			GRPCTLSCAFile:     os.Getenv("GRPC_TLS_CA"),
+			GRPCTLSAllowedOUs: commaSplit(getEnv("GRPC_TLS_ALLOWED_OUS", "")),
+			GRPCTLSEnabled:    getBool("GRPC_TLS_ENABLED"),
+			AllowedOrigins:    commaSplit(getEnv("CORS_ALLOW_ORIGINS", "http://localhost:5173,https://example.com,https://api.example.com")),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   getEnv("JWT_ACCESS_PRIVATE_KEY", ""),
@@ -220,6 +222,7 @@ func TestConfig() (*Config, error) {
 			Domain:          getEnv("TEST_DOMAIN", "localhost"),
 			AuthServiceAddr: getEnv("TEST_AUTH_SERVICE_ADDRESS", "localhost:50051"),
 			AdminEmail:      getEnv("TEST_ADMIN_EMAIL", ""),
+			AllowedOrigins:  commaSplit(getEnv("CORS_ALLOW_ORIGINS", "http://localhost:5173,https://example.com,https://api.example.com")),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   string(accessPrivateKey),

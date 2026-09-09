@@ -31,26 +31,19 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 	r.Use(middleware.StructuredLog())
 	r.Use(gin.Recovery())
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://example.com", "https://api.example.com"},
-		AllowMethods:     []string{"GET", "PATCH", "POST", "OPTIONS", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-	}))
-
-	// CORS
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://example.com", "https://api.example.com"},
-		AllowMethods:     []string{"GET", "PATH", "POST", "OPTIONS", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-	}))
-
 	// CONFIGURATION
 	cfg, _ := config.LoadConfig()
 	if mode == "test" || mode == "debug" {
 		cfg, _ = config.TestConfig()
 	}
+
+	// CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     cfg.Server.AllowedOrigins,
+		AllowMethods:     []string{"GET", "PATCH", "POST", "OPTIONS", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	// REPOSITORIES
 	userRepo := repository.NewGormUserRepository(db)
