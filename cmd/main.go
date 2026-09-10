@@ -192,6 +192,10 @@ func bootstrapRBAC(db *gorm.DB, ps *service.PermissionService, adminEmail string
 		{"admin", "users/*", "read"},
 		{"admin", "users/*", "write"},
 		{"admin", "users/*", "delete"},
+		{"admin", "stream", "read"},
+		{"admin", "stream/*", "read"},
+		{"admin", "stream/*", "write"},
+		{"admin", "stream/*", "delete"},
 		{"member", "stream", "read"},
 		{"member", "stream", "write"},
 	}
