@@ -10,6 +10,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/request"
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/response"
 	"github.com/mrhumster/identity-service/internal/domain/models"
+	internalmetrics "github.com/mrhumster/identity-service/internal/metrics"
 	"github.com/mrhumster/identity-service/internal/service"
 )
 
@@ -42,9 +43,12 @@ func (a *AuthHandler) Login(c *gin.Context) {
 
 	if u, err = a.UserService.ValidateUser(c, req.Email, req.Password); err != nil {
 		slog.Debug("login failed", "email", req.Email, "error", err)
+		internalmetrics.LoginAttempts.WithLabelValues("invalid").Inc()
 		c.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse("invalid email or password"))
 		return
 	}
+
+	internalmetrics.LoginAttempts.WithLabelValues("success").Inc()
 
 	tokenPair, err := a.TokenService.GenerateToken(u)
 	if err != nil {
@@ -101,6 +105,7 @@ func (a *AuthHandler) Refresh(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse("failed to generate token"))
 		return
 	}
+	internalmetrics.TokensRefreshed.Inc()
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(
 		"refresh_token",

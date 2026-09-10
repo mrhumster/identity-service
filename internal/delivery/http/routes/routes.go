@@ -13,6 +13,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/service"
 	"github.com/mrhumster/identity-service/pkg/auth"
 	"github.com/mrhumster/identity-service/pkg/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gorm.io/gorm"
 )
 
@@ -29,6 +30,7 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 	r := gin.New()
 
 	r.Use(middleware.StructuredLog())
+	r.Use(middleware.MetricsMiddleware())
 	r.Use(gin.Recovery())
 
 	// CONFIGURATION
@@ -78,6 +80,7 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 	}
 
 	r.GET("/auth/public-key", commonHandler.GetPublicKey)
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	r.GET("/auth/health", func(c *gin.Context) {
 		if _, err := db.DB(); err != nil {
 			log.Println("⚠️ PG ERROR: ", err.Error())

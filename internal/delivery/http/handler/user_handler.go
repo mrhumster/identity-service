@@ -12,6 +12,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/request"
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/response"
 	"github.com/mrhumster/identity-service/internal/domain/models"
+	internalmetrics "github.com/mrhumster/identity-service/internal/metrics"
 	"github.com/mrhumster/identity-service/internal/service"
 	"gorm.io/gorm"
 )
@@ -62,6 +63,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	internalmetrics.UsersCreated.Inc()
 	c.JSON(http.StatusCreated, gin.H{"id": id})
 }
 
