@@ -18,6 +18,7 @@ import (
 	permissionpb "github.com/mrhumster/identity-service/gen/go/permission"
 	"github.com/mrhumster/identity-service/internal/database"
 	"github.com/mrhumster/identity-service/internal/delivery/http/routes"
+	"github.com/mrhumster/identity-service/internal/domain/models"
 	"github.com/mrhumster/identity-service/internal/permission"
 	"github.com/mrhumster/identity-service/internal/repository"
 	"github.com/mrhumster/identity-service/internal/service"
@@ -238,7 +239,7 @@ func bootstrapRBAC(db *gorm.DB, ps *service.PermissionService, adminEmail string
 		return nil
 	}
 
-	admin, err := userRepo.ReadUserByEmail(ctx, adminEmail)
+	admin, err := userRepo.ReadUserByEmail(ctx, models.NormalizeEmail(adminEmail))
 	if err != nil {
 		return fmt.Errorf("ADMIN_EMAIL user not found: %w", err)
 	}

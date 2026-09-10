@@ -31,6 +31,7 @@ func NewUserService(repo repository.UserRepository, perm PermissionClient) *User
 }
 
 func (s *UserService) CreateUser(ctx context.Context, user models.User) (*uuid.UUID, error) {
+	user.Email = models.NormalizeEmail(user.Email)
 	if user.Role == "" {
 		role := "member"
 		user.Role = role
@@ -89,7 +90,7 @@ func (s *UserService) ReadUserList(ctx context.Context, limit, page int64) ([]mo
 }
 
 func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	return s.repo.ReadUserByEmail(ctx, email)
+	return s.repo.ReadUserByEmail(ctx, models.NormalizeEmail(email))
 }
 
 func (s *UserService) ValidateUser(ctx context.Context, email, password string) (*models.User, error) {

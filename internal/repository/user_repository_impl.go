@@ -104,6 +104,7 @@ func (r *GormUserRepository) ReadUserList(ctx context.Context, l, page int64) ([
 }
 
 func (r *GormUserRepository) ReadUserByEmail(ctx context.Context, value string) (*models.User, error) {
+	value = models.NormalizeEmail(value)
 	var user models.User
 	if err := r.db.WithContext(ctx).Model(&models.User{}).First(&user, "email = ?", value).Error; err != nil {
 		return nil, err

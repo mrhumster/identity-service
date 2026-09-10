@@ -35,3 +35,21 @@ func TestUser_FillTest(t *testing.T) {
 	user.FillInTheRequest(req)
 	assert.NotEqual(t, user.PasswordHash, req.Password)
 }
+
+func TestNormalizeEmail(t *testing.T) {
+	assert.Equal(t, "me@xomrkob.ru", NormalizeEmail("  ME@Xomrkob.Ru  "))
+	assert.Equal(t, "user@example.com", NormalizeEmail("user@example.com"))
+	assert.Equal(t, "", NormalizeEmail("   "))
+}
+
+func TestUser_FillInTheRequest_NormalizesEmail(t *testing.T) {
+	user := User{}
+	user.FillInTheRequest(request.UserRequest{Email: "  Foo@Bar.com ", Password: "password"})
+	assert.Equal(t, "foo@bar.com", user.Email)
+}
+
+func TestUser_FillInTheUpdateRequest_NormalizesEmail(t *testing.T) {
+	user := User{}
+	user.FillInTheUpdateRequest(request.UpdateUserRequest{Email: " Foo@Bar.com "})
+	assert.Equal(t, "foo@bar.com", user.Email)
+}

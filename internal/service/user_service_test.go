@@ -122,3 +122,52 @@ func TestUserService_Validate(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func TestUserService_Create_NormalizesEmail(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := repomock.NewMockUserRepository(ctrl)
+	permissionClient := authmock.NewMockPermissionClient(ctrl)
+
+	repo.EXPECT().
+		CreateUser(gomock.Any(), gomock.AssignableToTypeOf(models.User{})).
+		DoAndReturn(func(_ context.Context, user models.User) (*uuid.UUID, error) {
+			assert.Equal(t, "testuser123@domain.com", user.Email, "email must be normalized before insert")
+			id := uuid.New()
+			return &id, nil
+		}).
+		Times(1)
+
+	permissionClient.EXPECT().
+		AddPolicy(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(true, nil).
+		AnyTimes()
+
+	permissionClient.EXPECT().
+		AddRoleForUser(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(true, nil).
+		AnyTimes()
+
+	service := NewUserService(repo, permissionClient)
+	_, err := service.CreateUser(context.Background(), models.User{Email: "  TESTUser123@Domain.com  "})
+	assert.NoError(t, err)
+}
+
+func TestUserService_GetUserByEmail_Normalizes(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repo := repomock.NewMockUserRepository(ctrl)
+	permissionClient := authmock.NewMockPermissionClient(ctrl)
+
+	expected := &models.User{Email: "me@xomrkob.ru"}
+
+	repo.EXPECT().
+		ReadUserByEmail(gomock.Any(), "me@xomrkob.ru").
+		Return(expected, nil).
+		Times(1)
+
+	service := NewUserService(repo, permissionClient)
+	u, err := service.GetUserByEmail(context.Background(), "  ME@Xomrkob.RU  ")
+	require.NoError(t, err)
+	assert.Equal(t, "me@xomrkob.ru", u.Email)
+}
