@@ -55,8 +55,9 @@ func NewTokenService(cfg *config.JWT) (*TokenService, error) {
 func (s *TokenService) GenerateToken(user *models.User) (*models.TokenPair, error) {
 	accessExpiresAt := time.Now().Add(s.accessExpiry)
 	accessClaims := &models.AccessClaims{
-		UserID: user.ID.String(),
-		Role:   user.Role,
+		UserID:        user.ID.String(),
+		Role:          user.Role,
+		EmailVerified: user.EmailVerified,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(accessExpiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

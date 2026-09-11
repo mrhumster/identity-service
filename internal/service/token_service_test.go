@@ -34,6 +34,25 @@ func TestTokenService_GenerateAndValidateToken(t *testing.T) {
 	assert.Equal(t, "auth-service", claims.Issuer)
 }
 
+func TestTokenService_EmailVerifiedClaim(t *testing.T) {
+	cfg, _ := config.TestConfig()
+	service, _ := NewTokenService(&cfg.JWT)
+
+	verifiedUser := &models.User{Role: "member", EmailVerified: true}
+	token, err := service.GenerateToken(verifiedUser)
+	assert.NoError(t, err)
+	claims, err := service.ValidateAccessToken(token.AccessToken)
+	assert.NoError(t, err)
+	assert.True(t, claims.EmailVerified)
+
+	unverifiedUser := &models.User{Role: "member", EmailVerified: false}
+	token, err = service.GenerateToken(unverifiedUser)
+	assert.NoError(t, err)
+	claims, err = service.ValidateAccessToken(token.AccessToken)
+	assert.NoError(t, err)
+	assert.False(t, claims.EmailVerified)
+}
+
 func TestTokenService_ValidateToken_Invalid(t *testing.T) {
 	cfg, _ := config.TestConfig()
 	service, _ := NewTokenService(&cfg.JWT)

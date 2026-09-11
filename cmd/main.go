@@ -258,5 +258,12 @@ func bootstrapRBAC(db *gorm.DB, ps *service.PermissionService, adminEmail string
 		return fmt.Errorf("failed to assign admin role: %w", err)
 	}
 	logger.Info("✅ RBAC: admin role ensured", "user", admin.ID.String(), "email", adminEmail, "added", roleAdded)
+
+	if !admin.EmailVerified {
+		if err := userRepo.UpdateEmailVerified(ctx, admin.ID, true); err != nil {
+			return fmt.Errorf("failed to auto-verify ADMIN_EMAIL user: %w", err)
+		}
+		logger.Info("✅ RBAC: admin email auto-verified", "user", admin.ID.String())
+	}
 	return nil
 }

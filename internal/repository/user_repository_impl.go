@@ -78,6 +78,14 @@ func (r *GormUserRepository) UpdateUserRole(ctx context.Context, id uuid.UUID, r
 	return result.Error
 }
 
+func (r *GormUserRepository) UpdateEmailVerified(ctx context.Context, id uuid.UUID, verified bool) error {
+	result := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", id).
+		Update("email_verified", verified)
+	return result.Error
+}
+
 func (r *GormUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	result := r.db.WithContext(ctx).Delete(&models.User{}, id)
 	return result.Error

@@ -9,8 +9,9 @@ func ErrorResponse(message string) map[string]any {
 }
 
 type AccessClaims struct {
-	UserID string `json:"user_id"`
-	Role   string `json:"role"`
+	UserID        string `json:"user_id"`
+	Role          string `json:"role"`
+	EmailVerified bool   `json:"email_verified"`
 	jwt.RegisteredClaims
 }
 

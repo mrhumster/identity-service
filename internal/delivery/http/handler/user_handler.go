@@ -18,11 +18,12 @@ import (
 )
 
 type UserHandler struct {
-	service *service.UserService
+	service      *service.UserService
+	verification *service.VerificationService
 }
 
-func NewUserHandler(service *service.UserService) *UserHandler {
-	return &UserHandler{service: service}
+func NewUserHandler(service *service.UserService, verification *service.VerificationService) *UserHandler {
+	return &UserHandler{service: service, verification: verification}
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
@@ -64,6 +65,16 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 
 	internalmetrics.UsersCreated.Inc()
+
+	if h.verification != nil {
+		if token, err := h.verification.CreateToken(c, *id); err != nil {
+			slog.Error("create verification token failed", "error", err)
+		} else {
+			// TODO: заменить на доставку через notification-service (SMTP), когда он появится.
+			slog.Info("verification token (register)", "user_id", id.String(), "token", token)
+		}
+	}
+
 	c.JSON(http.StatusCreated, gin.H{"id": id})
 }
 

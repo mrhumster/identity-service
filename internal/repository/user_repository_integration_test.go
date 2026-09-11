@@ -10,6 +10,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/domain/models"
 	"github.com/mrhumster/identity-service/tests/testutils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func generateUniqueUser() models.User {
@@ -106,4 +107,33 @@ func TestUserRepository_UserExist(t *testing.T) {
 		exists := repo.Exists(ctx, *id)
 		assert.True(t, exists)
 	})
+}
+
+func TestUserRepository_UpdateEmailVerified(t *testing.T) {
+	db := testutils.GetTestDB()
+	defer testutils.CleanTestDatabase()
+	repo := NewGormUserRepository(db)
+	ctx := context.Background()
+
+	user := models.User{
+		Email:        "verify@test.local",
+		PasswordHash: "***1234***",
+	}
+	id, err := repo.CreateUser(ctx, user)
+	require.NoError(t, err)
+
+	u, err := repo.ReadUserByID(ctx, *id)
+	require.NoError(t, err)
+	assert.False(t, u.EmailVerified)
+
+	require.NoError(t, repo.UpdateEmailVerified(ctx, *id, true))
+
+	u, err = repo.ReadUserByID(ctx, *id)
+	require.NoError(t, err)
+	assert.True(t, u.EmailVerified)
+
+	require.NoError(t, repo.UpdateEmailVerified(ctx, *id, false))
+	u, err = repo.ReadUserByID(ctx, *id)
+	require.NoError(t, err)
+	assert.False(t, u.EmailVerified)
 }

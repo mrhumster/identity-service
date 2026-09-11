@@ -132,6 +132,20 @@ func (mr *MockUserRepositoryMockRecorder) ReadUserList(ctx, l, page any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadUserList", reflect.TypeOf((*MockUserRepository)(nil).ReadUserList), ctx, l, page)
 }
 
+// UpdateEmailVerified mocks base method.
+func (m *MockUserRepository) UpdateEmailVerified(ctx context.Context, id uuid.UUID, verified bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateEmailVerified", ctx, id, verified)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateEmailVerified indicates an expected call of UpdateEmailVerified.
+func (mr *MockUserRepositoryMockRecorder) UpdateEmailVerified(ctx, id, verified any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEmailVerified", reflect.TypeOf((*MockUserRepository)(nil).UpdateEmailVerified), ctx, id, verified)
+}
+
 // UpdateTokenVersion mocks base method.
 func (m *MockUserRepository) UpdateTokenVersion(ctx context.Context, userID *uuid.UUID, version string) error {
 	m.ctrl.T.Helper()

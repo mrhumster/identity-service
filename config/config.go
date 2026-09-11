@@ -38,6 +38,7 @@ type Server struct {
 	GRPCTLSAllowedOUs []string
 	GRPCTLSEnabled    bool
 	AllowedOrigins    []string
+	VerifyTokenTTL    time.Duration
 }
 
 type JWT struct {
@@ -71,6 +72,10 @@ func LoadConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Config error. Plase set ENV JWT_REFRESH_TOKEN_EXPIRY. %v", err)
 	}
+	verifyTokenTTL, err := time.ParseDuration(getEnv("VERIFY_TOKEN_TTL", "2h"))
+	if err != nil {
+		return nil, fmt.Errorf("Config error. Plase set ENV VERIFY_TOKEN_TTL. %v", err)
+	}
 
 	cfg := &Config{
 		Database: Database{
@@ -95,6 +100,7 @@ func LoadConfig() (*Config, error) {
 			GRPCTLSAllowedOUs: commaSplit(getEnv("GRPC_TLS_ALLOWED_OUS", "")),
 			GRPCTLSEnabled:    getBool("GRPC_TLS_ENABLED"),
 			AllowedOrigins:    commaSplit(getEnv("CORS_ALLOW_ORIGINS", "http://localhost:5173,https://example.com,https://api.example.com")),
+			VerifyTokenTTL:    verifyTokenTTL,
 		},
 		JWT: JWT{
 			AccessPrivateKey:   getEnv("JWT_ACCESS_PRIVATE_KEY", ""),
@@ -175,6 +181,10 @@ func TestConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Config error. Plase set ENV JWT_REFRESH_TOKEN_EXPIRY. %v", err)
 	}
+	verifyTokenTTL, err := time.ParseDuration(getEnv("VERIFY_TOKEN_TTL", "2h"))
+	if err != nil {
+		return nil, fmt.Errorf("Config error. Plase set ENV VERIFY_TOKEN_TTL. %v", err)
+	}
 
 	rootDir := GetRootDir()
 
@@ -223,6 +233,11 @@ func TestConfig() (*Config, error) {
 			AuthServiceAddr: getEnv("TEST_AUTH_SERVICE_ADDRESS", "localhost:50051"),
 			AdminEmail:      getEnv("TEST_ADMIN_EMAIL", ""),
 			AllowedOrigins:  commaSplit(getEnv("CORS_ALLOW_ORIGINS", "http://localhost:5173,https://example.com,https://api.example.com")),
+			VerifyTokenTTL:  verifyTokenTTL,
+		},
+		Redis: Redis{
+			Addr:     getEnv("TEST_REDIS_ADDR", "localhost:6379"),
+			Password: getEnv("TEST_REDIS_PASS", ""),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   string(accessPrivateKey),

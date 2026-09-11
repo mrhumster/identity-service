@@ -14,6 +14,7 @@ import (
 	"github.com/mrhumster/identity-service/pkg/auth"
 	"github.com/mrhumster/identity-service/pkg/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -57,22 +58,31 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 		fmt.Printf("⚠️ SetupRoutes: %v", err)
 		panic("Error create new token service")
 	}
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     cfg.Redis.Addr,
+		Password: cfg.Redis.Password,
+		DB:       0,
+	})
+	verificationService := service.NewVerificationService(redisClient, userRepo, cfg.Server.VerifyTokenTTL)
 
 	// HANDLERS
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, verificationService)
 	authHandler := handler.NewAuthHandler(userService, tokenService, cfg.Server.JwtSecret, cfg.Server.Domain)
 	commonHandler := handler.NewCommonHandler(tokenService)
+	verificationHandler := handler.NewVerificationHandler(verificationService)
 
 	// ROUTE
 	r.POST("/auth/login", authHandler.Login)
 	r.POST("/auth/users", userHandler.CreateUser)
 	r.POST("/auth/refresh", authHandler.Refresh)
+	r.POST("/auth/verify", verificationHandler.VerifyEmail)
 
 	auth := r.Group("/auth/", middleware.AuthMiddleware(tokenService))
 	{
 		auth.GET("/who", userHandler.GetAuthUser)
 		auth.POST("/logout", authHandler.Logout)
 		auth.POST("/logout-all", authHandler.LogoutAll)
+		auth.POST("/resend", verificationHandler.ResendVerification)
 		auth.GET("/users", middleware.Authorize(permissionClient, "users", "read"), userHandler.ReadUsers)
 		auth.GET("/users/:id", middleware.Authorize(permissionClient, "users", "read"), userHandler.ReadUser)
 		auth.PATCH("/users/:id", middleware.Authorize(permissionClient, "users", "write"), userHandler.Update)

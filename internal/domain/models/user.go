@@ -16,10 +16,11 @@ func NormalizeEmail(email string) string {
 
 type User struct {
 	BaseModel
-	Email        string `gorm:"not null;uniqueIndex:idx_users_email_lower,expression:lower(email)" json:"email"`
-	PasswordHash string `gorm:"not null" json:"-"`
-	Role         string `gorm:"" json:"role"`
-	TokenVersion string `gorm:"default:'v1'"`
+	Email         string `gorm:"not null;uniqueIndex:idx_users_email_lower,expression:lower(email)" json:"email"`
+	PasswordHash  string `gorm:"not null" json:"-"`
+	Role          string `gorm:"" json:"role"`
+	TokenVersion  string `gorm:"default:'v1'"`
+	EmailVerified bool   `gorm:"not null;default:false" json:"email_verified"`
 }
 
 func (User) TableName() string {
