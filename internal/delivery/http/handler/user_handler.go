@@ -70,7 +70,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		if token, err := h.verification.CreateToken(c, *id); err != nil {
 			slog.Error("create verification token failed", "error", err)
 		} else {
-			// TODO: заменить на доставку через notification-service (SMTP), когда он появится.
+			// Доставка письма — через mailer-service (asynq), токен логируется как fallback.
 			slog.Info("verification token (register)", "user_id", id.String(), "token", token)
 		}
 	}

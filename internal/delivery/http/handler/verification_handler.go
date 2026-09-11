@@ -44,7 +44,7 @@ func (h *VerificationHandler) ResendVerification(c *gin.Context) {
 		return
 	}
 
-	// TODO: заменить на доставку через notification-service (SMTP), когда он появится.
+	// Доставка письма — через mailer-service (asynq), токен логируется как fallback.
 	slog.Info("verification token (resend)", "user_id", userUUID.String(), "token", token)
 	c.JSON(http.StatusOK, gin.H{"message": "verification sent"})
 }
