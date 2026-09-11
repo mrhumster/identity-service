@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mrhumster/identity-service/config"
 	"github.com/mrhumster/identity-service/internal/delivery/http/handler"
+	"github.com/mrhumster/identity-service/internal/notifier"
+	"github.com/mrhumster/identity-service/internal/queue"
 	"github.com/mrhumster/identity-service/internal/repository"
 	"github.com/mrhumster/identity-service/internal/service"
 	"github.com/mrhumster/identity-service/pkg/auth"
@@ -64,6 +66,9 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 		DB:       0,
 	})
 	verificationService := service.NewVerificationService(redisClient, userRepo, cfg.Server.VerifyTokenTTL)
+	verificationService.WithNotifier(notifier.NewNotifier(queue.NewEmailClient(
+		cfg.Redis.Addr, cfg.Redis.Password, cfg.Redis.QueueDB,
+	)))
 
 	// HANDLERS
 	userHandler := handler.NewUserHandler(userService, verificationService)

@@ -23,6 +23,7 @@ type Database struct {
 type Redis struct {
 	Addr     string
 	Password string
+	QueueDB  int
 }
 
 type Server struct {
@@ -114,6 +115,7 @@ func LoadConfig() (*Config, error) {
 		Redis: Redis{
 			Addr:     getEnv("REDIS_ADDR", "localhost"),
 			Password: getEnv("REDIS_PASS", ""),
+			QueueDB:  getQueueDB("REDIS_QUEUE_DB", 2),
 		},
 	}
 	if cfg.JWT.AccessPrivateKey == "" {
@@ -154,6 +156,16 @@ func getEnv(key, defaultValue string) string {
 
 func getBool(key string) bool {
 	v, _ := strconv.ParseBool(os.Getenv(key))
+	return v
+}
+
+// getQueueDB parses the asynq queue DB index; on any parse failure it falls
+// back to the provided default (2 = workers' DB).
+func getQueueDB(key string, fallback int) int {
+	v, err := strconv.Atoi(os.Getenv(key))
+	if err != nil {
+		return fallback
+	}
 	return v
 }
 
@@ -238,6 +250,7 @@ func TestConfig() (*Config, error) {
 		Redis: Redis{
 			Addr:     getEnv("TEST_REDIS_ADDR", "localhost:6379"),
 			Password: getEnv("TEST_REDIS_PASS", ""),
+			QueueDB:  getQueueDB("TEST_REDIS_QUEUE_DB", 2),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   string(accessPrivateKey),
