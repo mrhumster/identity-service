@@ -7,7 +7,7 @@ global:
 primary:
   persistence:
     enabled: true
-    storageClass: "hostpath"
+    storageClass: "local-path"
     size: 8Gi
   postgresql:
     max_connections: 100
