@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mrhumster/identity-service/config"
 	"github.com/mrhumster/identity-service/internal/delivery/http/handler"
+	"github.com/mrhumster/identity-service/internal/events"
 	"github.com/mrhumster/identity-service/internal/notifier"
 	"github.com/mrhumster/identity-service/internal/queue"
 	"github.com/mrhumster/identity-service/internal/repository"
@@ -70,11 +71,19 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 		cfg.Redis.Addr, cfg.Redis.Password, cfg.Redis.QueueDB,
 	)))
 
+	// Activity events → events-service asynq queue (Redis DB = EVENTS_QUEUE_DB).
+	var activityRecorder *events.Recorder
+	if cfg.Redis.EventsQueueDB >= 0 {
+		activityRecorder = events.NewRecorder(events.NewActivityClient(
+			cfg.Redis.Addr, cfg.Redis.Password, cfg.Redis.EventsQueueDB,
+		))
+	}
+
 	// HANDLERS
-	userHandler := handler.NewUserHandler(userService, verificationService)
-	authHandler := handler.NewAuthHandler(userService, tokenService, cfg.Server.JwtSecret, cfg.Server.Domain)
+	userHandler := handler.NewUserHandler(userService, verificationService).WithEvents(activityRecorder)
+	authHandler := handler.NewAuthHandler(userService, tokenService, cfg.Server.JwtSecret, cfg.Server.Domain).WithEvents(activityRecorder)
 	commonHandler := handler.NewCommonHandler(tokenService)
-	verificationHandler := handler.NewVerificationHandler(verificationService)
+	verificationHandler := handler.NewVerificationHandler(verificationService).WithEvents(activityRecorder)
 
 	// ROUTE
 	r.POST("/auth/login", authHandler.Login)

@@ -7,15 +7,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/request"
+	"github.com/mrhumster/identity-service/internal/events"
 	"github.com/mrhumster/identity-service/internal/service"
 )
 
 type VerificationHandler struct {
 	service *service.VerificationService
+	Events  *events.Recorder
 }
 
 func NewVerificationHandler(service *service.VerificationService) *VerificationHandler {
 	return &VerificationHandler{service: service}
+}
+
+// WithEvents attaches the activity-event recorder (best-effort, may be nil).
+func (h *VerificationHandler) WithEvents(r *events.Recorder) *VerificationHandler {
+	h.Events = r
+	return h
 }
 
 func (h *VerificationHandler) VerifyEmail(c *gin.Context) {
@@ -25,10 +33,17 @@ func (h *VerificationHandler) VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.service.VerifyToken(c, req.Token); err != nil {
+	userID, err := h.service.VerifyToken(c, req.Token)
+	if err != nil {
 		slog.Info("verify email failed", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid or expired verification token"})
 		return
+	}
+
+	if h.Events != nil && userID != nil {
+		if err := h.Events.RecordActivity(c, *userID, "user.email.verified", nil, map[string]any{}); err != nil {
+			slog.Warn("record user.email.verified event failed", "user_id", userID.String(), "error", err)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"verified": true})

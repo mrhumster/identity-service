@@ -10,6 +10,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/request"
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/response"
 	"github.com/mrhumster/identity-service/internal/domain/models"
+	"github.com/mrhumster/identity-service/internal/events"
 	internalmetrics "github.com/mrhumster/identity-service/internal/metrics"
 	"github.com/mrhumster/identity-service/internal/service"
 )
@@ -19,6 +20,7 @@ type AuthHandler struct {
 	TokenService *service.TokenService
 	JwtSecret    string
 	Domain       string
+	Events       *events.Recorder
 }
 
 func NewAuthHandler(userService *service.UserService, tokenService *service.TokenService, jwtSecret, domain string) *AuthHandler {
@@ -28,6 +30,12 @@ func NewAuthHandler(userService *service.UserService, tokenService *service.Toke
 		JwtSecret:    jwtSecret,
 		Domain:       domain,
 	}
+}
+
+// WithEvents attaches the activity-event recorder (best-effort, may be nil).
+func (a *AuthHandler) WithEvents(r *events.Recorder) *AuthHandler {
+	a.Events = r
+	return a
 }
 
 func (a *AuthHandler) Login(c *gin.Context) {
@@ -49,6 +57,12 @@ func (a *AuthHandler) Login(c *gin.Context) {
 	}
 
 	internalmetrics.LoginAttempts.WithLabelValues("success").Inc()
+
+	if a.Events != nil {
+		if err := a.Events.RecordActivity(c, u.ID, "user.login", nil, map[string]any{"email": req.Email}); err != nil {
+			slog.Warn("record user.login event failed", "user_id", u.ID.String(), "error", err)
+		}
+	}
 
 	tokenPair, err := a.TokenService.GenerateToken(u)
 	if err != nil {

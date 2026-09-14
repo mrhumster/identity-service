@@ -12,6 +12,7 @@ import (
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/request"
 	"github.com/mrhumster/identity-service/internal/delivery/http/dto/response"
 	"github.com/mrhumster/identity-service/internal/domain/models"
+	"github.com/mrhumster/identity-service/internal/events"
 	internalmetrics "github.com/mrhumster/identity-service/internal/metrics"
 	"github.com/mrhumster/identity-service/internal/service"
 	"gorm.io/gorm"
@@ -20,10 +21,17 @@ import (
 type UserHandler struct {
 	service      *service.UserService
 	verification *service.VerificationService
+	Events       *events.Recorder
 }
 
 func NewUserHandler(service *service.UserService, verification *service.VerificationService) *UserHandler {
 	return &UserHandler{service: service, verification: verification}
+}
+
+// WithEvents attaches the activity-event recorder (best-effort, may be nil).
+func (h *UserHandler) WithEvents(r *events.Recorder) *UserHandler {
+	h.Events = r
+	return h
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
@@ -65,6 +73,12 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 
 	internalmetrics.UsersCreated.Inc()
+
+	if h.Events != nil {
+		if err := h.Events.RecordActivity(c, *id, "user.registered", nil, map[string]any{"email": u.Email}); err != nil {
+			slog.Warn("record user.registered event failed", "user_id", id.String(), "error", err)
+		}
+	}
 
 	if h.verification != nil {
 		if token, err := h.verification.CreateToken(c, *id); err != nil {

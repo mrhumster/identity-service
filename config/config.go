@@ -24,6 +24,9 @@ type Redis struct {
 	Addr     string
 	Password string
 	QueueDB  int
+	// EventsQueueDB is the Redis DB serving the events-service asynq queue
+	// (event:activity). Defaults to 3.
+	EventsQueueDB int
 }
 
 type Server struct {
@@ -113,9 +116,10 @@ func LoadConfig() (*Config, error) {
 			Issuer:             getEnv("JWT_ISSUER", "auth-service"),
 		},
 		Redis: Redis{
-			Addr:     getEnv("REDIS_ADDR", "localhost"),
-			Password: getEnv("REDIS_PASS", ""),
-			QueueDB:  getQueueDB("REDIS_QUEUE_DB", 2),
+			Addr:           getEnv("REDIS_ADDR", "localhost"),
+			Password:       getEnv("REDIS_PASS", ""),
+			QueueDB:        getQueueDB("REDIS_QUEUE_DB", 2),
+			EventsQueueDB:  getQueueDB("EVENTS_QUEUE_DB", 3),
 		},
 	}
 	if cfg.JWT.AccessPrivateKey == "" {
@@ -248,9 +252,10 @@ func TestConfig() (*Config, error) {
 			VerifyTokenTTL:  verifyTokenTTL,
 		},
 		Redis: Redis{
-			Addr:     getEnv("TEST_REDIS_ADDR", "localhost:6379"),
-			Password: getEnv("TEST_REDIS_PASS", ""),
-			QueueDB:  getQueueDB("TEST_REDIS_QUEUE_DB", 2),
+			Addr:           getEnv("TEST_REDIS_ADDR", "localhost:6379"),
+			Password:       getEnv("TEST_REDIS_PASS", ""),
+			QueueDB:        getQueueDB("TEST_REDIS_QUEUE_DB", 2),
+			EventsQueueDB:  getQueueDB("TEST_EVENTS_QUEUE_DB", 3),
 		},
 		JWT: JWT{
 			AccessPrivateKey:   string(accessPrivateKey),
