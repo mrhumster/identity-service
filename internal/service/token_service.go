@@ -57,6 +57,7 @@ func (s *TokenService) GenerateToken(user *models.User) (*models.TokenPair, erro
 	accessClaims := &models.AccessClaims{
 		UserID:        user.ID.String(),
 		Role:          user.Role,
+		Email:         user.Email,
 		EmailVerified: user.EmailVerified,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(accessExpiresAt),

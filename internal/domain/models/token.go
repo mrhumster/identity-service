@@ -14,6 +14,7 @@ type TokenPair struct {
 type AccessClaims struct {
 	UserID        string `json:"user_id"`
 	Role          string `json:"role"`
+	Email         string `json:"email"`
 	EmailVerified bool   `json:"email_verified"`
 	jwt.RegisteredClaims
 }
