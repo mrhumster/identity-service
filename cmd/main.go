@@ -99,6 +99,7 @@ func main() {
 		}
 
 		grpcOpts := []grpc.ServerOption{}
+		interceptors := []grpc.UnaryServerInterceptor{grpctls.MutationGuard()}
 		if cfg.Server.GRPCTLSEnabled {
 			serverCreds, terr := grpctls.ServerTLSCreds(cfg.Server.GRPCTLSCertFile, cfg.Server.GRPCTLSKeyFile, cfg.Server.GRPCTLSCAFile)
 			if terr != nil {
@@ -106,8 +107,11 @@ func main() {
 			}
 			grpcOpts = append(grpcOpts, grpc.Creds(serverCreds))
 			if len(cfg.Server.GRPCTLSAllowedOUs) > 0 {
-				grpcOpts = append(grpcOpts, grpc.UnaryInterceptor(grpctls.AllowOUsInterceptor(cfg.Server.GRPCTLSAllowedOUs...)))
+				interceptors = append(interceptors, grpctls.AllowOUsInterceptor(cfg.Server.GRPCTLSAllowedOUs...))
 			}
+		}
+		if len(interceptors) > 0 {
+			grpcOpts = append(grpcOpts, grpc.ChainUnaryInterceptor(interceptors...))
 		}
 
 		grpcServer := grpc.NewServer(grpcOpts...)

@@ -81,22 +81,24 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 
 	// HANDLERS
 	userHandler := handler.NewUserHandler(userService, verificationService).WithEvents(activityRecorder)
-	authHandler := handler.NewAuthHandler(userService, tokenService, cfg.Server.JwtSecret, cfg.Server.Domain).WithEvents(activityRecorder)
+	authHandler := handler.NewAuthHandler(userService, tokenService, cfg.Server.JwtSecret, cfg.Server.Domain).
+		WithRefreshStore(service.NewRefreshTokenStore(redisClient, cfg.JWT.RefreshTokenExpiry)).
+		WithEvents(activityRecorder)
 	commonHandler := handler.NewCommonHandler(tokenService)
 	verificationHandler := handler.NewVerificationHandler(verificationService).WithEvents(activityRecorder)
 
 	// ROUTE
-	r.POST("/auth/login", authHandler.Login)
+	r.POST("/auth/login", middleware.RateLimitPerMin(cfg.Server.AuthRateLimitPerMin), authHandler.Login)
 	r.POST("/auth/users", userHandler.CreateUser)
-	r.POST("/auth/refresh", authHandler.Refresh)
-	r.POST("/auth/verify", verificationHandler.VerifyEmail)
+	r.POST("/auth/refresh", middleware.RateLimitPerMin(cfg.Server.AuthRateLimitPerMin), authHandler.Refresh)
+	r.POST("/auth/verify", middleware.RateLimitPerMin(cfg.Server.AuthRateLimitPerMin), verificationHandler.VerifyEmail)
 
 	auth := r.Group("/auth/", middleware.AuthMiddleware(tokenService))
 	{
 		auth.GET("/who", userHandler.GetAuthUser)
 		auth.POST("/logout", authHandler.Logout)
 		auth.POST("/logout-all", authHandler.LogoutAll)
-		auth.POST("/resend", verificationHandler.ResendVerification)
+		auth.POST("/resend", middleware.RateLimitPerMin(cfg.Server.AuthRateLimitPerMin), verificationHandler.ResendVerification)
 		auth.GET("/users", middleware.Authorize(permissionClient, "users", "read"), userHandler.ReadUsers)
 		auth.GET("/users/:id", middleware.Authorize(permissionClient, "users", "read"), userHandler.ReadUser)
 		auth.PATCH("/users/:id", middleware.Authorize(permissionClient, "users", "write"), userHandler.Update)
