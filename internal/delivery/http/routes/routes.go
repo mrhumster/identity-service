@@ -85,7 +85,10 @@ func SetupRoutes(db *gorm.DB, mode string, permissionClient auth.PermissionClien
 		WithRefreshStore(service.NewRefreshTokenStore(redisClient, cfg.JWT.RefreshTokenExpiry)).
 		WithEvents(activityRecorder)
 	commonHandler := handler.NewCommonHandler(tokenService)
-	verificationHandler := handler.NewVerificationHandler(verificationService).WithEvents(activityRecorder)
+	verificationHandler := handler.NewVerificationHandler(verificationService).
+		WithEvents(activityRecorder).
+		WithSession(userService, tokenService, cfg.Server.Domain).
+		WithRefreshStore(service.NewRefreshTokenStore(redisClient, cfg.JWT.RefreshTokenExpiry))
 
 	// ROUTE
 	r.POST("/auth/login", middleware.RateLimitPerMin(cfg.Server.AuthRateLimitPerMin), authHandler.Login)
